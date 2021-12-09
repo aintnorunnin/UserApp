@@ -1,25 +1,72 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import ErrorModal from "./components/ErrorModal/ErrorModal";
+import NewUser from "./components/NewUser/NewUser";
+import UserList from "./components/UserList/UserList";
+import "./app.css";
 
-function App() {
+const INITIAL_VALIDATION_STATE = {
+  hasError: false,
+  errorMessage: "",
+};
+
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [userValidationState, setUserValidation] = useState(
+    INITIAL_VALIDATION_STATE
+  );
+
+  /**
+   * Add a newly created user to list of users. Perform validation before adding to list of users
+   */
+  function addNewUser(newUser, emptyUser, setUser) {
+    if (userInputIsValid(newUser, setUserValidation)) {
+      setUsers((prevUsers) => [newUser, ...prevUsers]);
+      setUser(emptyUser);
+    }
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <NewUser addNewUser={addNewUser} />
+      {users.length > 0 && <UserList listOfUsers={users} />}
+      {userValidationState.hasError && (
+        <ErrorModal
+          content={userValidationState.errorMessage}
+          resetValidationState={setUserValidation}
+          initialValidationState={INITIAL_VALIDATION_STATE}
+        />
+      )}
     </div>
   );
+};
+
+/**
+ * Validate user input. If input is not set validation state.
+ */
+function userInputIsValid(user, setUserValidation) {
+  if (user.name.trim().length === 0 || user.age === "") {
+    setUserValidation((prevState) => {
+      return {
+        ...prevState,
+        hasError: true,
+        errorMessage:
+          "Please provide a valid input. No empty values allowed for name and age",
+      };
+    });
+    return false;
+  }
+
+  if (user.age < 0) {
+    setUserValidation((prevState) => {
+      return {
+        ...prevState,
+        hasError: true,
+        errorMessage: "User's age must not be greater than or equal to 0",
+      };
+    });
+    return false;
+  }
+  return true;
 }
 
 export default App;
