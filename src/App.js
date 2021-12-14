@@ -18,11 +18,20 @@ const App = () => {
   /**
    * Add a newly created user to list of users. Perform validation before adding to list of users
    */
-  function addNewUser(newUser, emptyUser, setUser) {
+  function addNewUser(newUser) {
     if (userInputIsValid(newUser, setUserValidation)) {
       setUsers((prevUsers) => [newUser, ...prevUsers]);
-      setUser(emptyUser);
+      return true;
+    } else {
+      return false;
     }
+  }
+
+  /**
+   * Reset the user input validation state.
+   */
+  function resetValidationState() {
+    setUserValidation(INITIAL_VALIDATION_STATE);
   }
 
   return (
@@ -32,8 +41,7 @@ const App = () => {
       {userValidationState.hasError && (
         <ErrorModal
           content={userValidationState.errorMessage}
-          resetValidationState={setUserValidation}
-          initialValidationState={INITIAL_VALIDATION_STATE}
+          resetValidationState={resetValidationState}
         />
       )}
     </div>
